@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+data/a3_threats.db
+data/*.pkl
+sandbox/samples/
+sandbox/reports/
+quarantine/
+logs/
+.env
+*.egg-info/
+node_modules/
+dashboard/dist/
