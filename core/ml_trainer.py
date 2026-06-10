@@ -7,7 +7,7 @@ Gets smarter every time new threats are sandboxed.
 
 import sqlite3
 import json
-import pickle
+import joblib
 import numpy as np
 from datetime import datetime
 from pathlib import Path
@@ -15,8 +15,8 @@ from pathlib import Path
 BASE_DIR   = Path(__file__).parent.parent
 DATA_DIR   = BASE_DIR / "data"
 DB_PATH    = DATA_DIR / "a3_threats.db"
-MODEL_PATH = DATA_DIR / "a3_classifier.pkl"
-SCALER_PATH= DATA_DIR / "a3_scaler.pkl"
+MODEL_PATH  = DATA_DIR / "a3_classifier.joblib"
+SCALER_PATH = DATA_DIR / "a3_scaler.joblib"
 
 # ── All possible behaviour flags (feature vocabulary) ─────────────────────────
 ALL_FLAGS = [
@@ -234,11 +234,9 @@ def train():
     scores = cross_val_score(model, X_scaled, y, cv=3, scoring="accuracy")
     log(f"Cross-validation accuracy: {scores.mean():.1%} (+/- {scores.std():.1%})", "OK")
 
-    # Save model and scaler
-    with open(MODEL_PATH, "wb") as f:
-        pickle.dump(model, f)
-    with open(SCALER_PATH, "wb") as f:
-        pickle.dump(scaler, f)
+    # Save model and scaler (joblib is safer than pickle)
+    joblib.dump(model, MODEL_PATH)
+    joblib.dump(scaler, SCALER_PATH)
 
     log(f"Model saved to {MODEL_PATH}", "OK")
     log(f"Scaler saved to {SCALER_PATH}", "OK")
@@ -266,10 +264,8 @@ def predict(flags, score):
         return None, 0, {}
 
     try:
-        with open(MODEL_PATH, "rb") as f:
-            model = pickle.load(f)
-        with open(SCALER_PATH, "rb") as f:
-            scaler = pickle.load(f)
+        model  = joblib.load(MODEL_PATH)
+        scaler = joblib.load(SCALER_PATH)
 
         vec     = np.array([flags_to_vector(flags, score)])
         vec_s   = scaler.transform(vec)
