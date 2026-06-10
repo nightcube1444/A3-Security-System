@@ -19,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from sandbox import run_in_sandbox, init_sandbox_db, pull_sandbox_image
 from ai_analyst import analyse_report, init_ai_db, ask_ollama
+from swarm import start_swarm, publish_threat, check_swarm_intel
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR    = Path(__file__).parent.parent
@@ -301,6 +302,16 @@ def main():
     log("Preparing Docker sandbox (Layer 3)...")
     pull_sandbox_image()
     log("Sandbox ready ✓", "OK")
+
+    # Start swarm layer
+    log("Starting swarm layer...")
+    try:
+        if start_swarm():
+            log("Swarm layer active ✓", "OK")
+        else:
+            log("Swarm disabled — Redis not available", "WARN")
+    except Exception as e:
+        log(f"Swarm startup error: {e}", "WARN")
 
     # Start Layer 2 monitor
     monitor_proc = start_monitor()
