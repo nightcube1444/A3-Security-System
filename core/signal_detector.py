@@ -152,10 +152,13 @@ def arp_scan(network_prefix):
     # First ping sweep to populate ARP cache (runs fast in parallel)
     threads = []
     def ping(ip):
+        try:
         subprocess.run(
             ["ping", "-c", "1", "-W", "500", "-t", "1", ip],
             capture_output=True, timeout=2
         )
+        except Exception:
+        pass  # timeouts are normal — just means no device at that IP
 
     for i in range(1, 255):
         ip = f"{network_prefix}.{i}"
