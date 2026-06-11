@@ -92,7 +92,20 @@ def run_full_pipeline(file_path, file_event_id):
             quarantine_file(file_path, report, assessment)
         elif action == "DELETE":
             log(f"DELETE recommended for {file_path.name} — logged only", "WARN")
-
+        # Record on blockchain
+        if report["verdict"] in ("MALICIOUS", "SUSPICIOUS"):
+            try:
+                record_threat(
+                    str(file_path),
+                    report.get("hash", ""),
+                    report["verdict"],
+                    ttype.lower(),
+                    report.get("flags", []),
+                    report.get("score", 0)
+                )
+                log(f"Threat recorded on blockchain ✓", "OK")
+            except Exception as e:
+                log(f"Blockchain record failed: {e}", "WARN")
     log(f"Pipeline complete for: {file_path.name}", "OK")
 
 def quarantine_file(file_path, report, assessment):
@@ -288,7 +301,8 @@ def main():
 
     init_sandbox_db()
     init_ai_db()
-
+    init_chain_db()
+    
     # Check Ollama
     log("Checking Ollama (Layer 4)...")
     test = ask_ollama("Reply with only the word: ready")

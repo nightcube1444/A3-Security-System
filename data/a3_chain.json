@@ -1,0 +1,122 @@
+[
+  {
+    "block_index": 0,
+    "timestamp": "2026-06-11T10:05:44.723822",
+    "block_hash": "1092b33de0eb1ef853fb69101cfbdb8b2a810a2943c01943617671bcb7f13177",
+    "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "data": {
+      "type": "genesis",
+      "message": "A3 Security System \u2014 Threat Ledger Initialized",
+      "version": "1.0"
+    },
+    "nonce": 0
+  },
+  {
+    "block_index": 1,
+    "timestamp": "2026-06-11T10:05:44.724810",
+    "block_hash": "0003a65224f8e432899c90a4f9f2a547f5037ea9c1df9d19a066647b38f034b7",
+    "prev_hash": "1092b33de0eb1ef853fb69101cfbdb8b2a810a2943c01943617671bcb7f13177",
+    "data": {
+      "type": "threat",
+      "source": "local",
+      "file_path": "/Users/abin/A3/sandbox/samples/test_suspicious.py",
+      "file_hash": "b0a60937ef4b41dfc5254ffe5ca500c8fffd905489423de216b64b7187f09c3b",
+      "verdict": "SUSPICIOUS",
+      "threat_type": "trojan",
+      "flags": [
+        "spawns_subprocess"
+      ],
+      "score": 30,
+      "recorded_at": "2026-06-11T10:05:44.724683"
+    },
+    "nonce": 66
+  },
+  {
+    "block_index": 2,
+    "timestamp": "2026-06-11T10:05:44.725874",
+    "block_hash": "0091f28e084617191fa15f31e63d240092758b323b0e8283705d3e2066d4c4c0",
+    "prev_hash": "0003a65224f8e432899c90a4f9f2a547f5037ea9c1df9d19a066647b38f034b7",
+    "data": {
+      "type": "threat",
+      "source": "local",
+      "file_path": "/Users/abin/A3/sandbox/samples/test_suspicious.py",
+      "file_hash": "78781926f51add3d9893638290d6adb03b2028c4fc522bc8927a5ffa8d69f8ef",
+      "verdict": "SUSPICIOUS",
+      "threat_type": "trojan",
+      "flags": [
+        "static_imports_socket",
+        "static_imports_subprocess"
+      ],
+      "score": 50,
+      "recorded_at": "2026-06-11T10:05:44.725755"
+    },
+    "nonce": 34
+  },
+  {
+    "block_index": 3,
+    "timestamp": "2026-06-11T10:05:44.726805",
+    "block_hash": "00f32423a65a94f0cc24e9f1e3672bdba5ec59f67375650fdd89d8c215d4a17e",
+    "prev_hash": "0091f28e084617191fa15f31e63d240092758b323b0e8283705d3e2066d4c4c0",
+    "data": {
+      "type": "threat",
+      "source": "local",
+      "file_path": "/Users/abin/A3/sandbox/samples/test_risky.py",
+      "file_hash": "2e0809bf68e5878d296af4b607d60b7d730f9d3a7b3ef201684dd7f832fe611d",
+      "verdict": "MALICIOUS",
+      "threat_type": "trojan",
+      "flags": [
+        "static_imports_subprocess",
+        "static_system_command",
+        "static_base64_import",
+        "static_base64_decode"
+      ],
+      "score": 110,
+      "recorded_at": "2026-06-11T10:05:44.726698"
+    },
+    "nonce": 373
+  },
+  {
+    "block_index": 4,
+    "timestamp": "2026-06-11T10:05:44.729648",
+    "block_hash": "0050557b3bf5251bb704f9349db57b828693b9804619a8fc2c2d5eb073afefda",
+    "prev_hash": "00f32423a65a94f0cc24e9f1e3672bdba5ec59f67375650fdd89d8c215d4a17e",
+    "data": {
+      "type": "threat",
+      "source": "local",
+      "file_path": "/Users/abin/A3/sandbox/samples/test_suspicious.py",
+      "file_hash": "78781926f51add3d9893638290d6adb03b2028c4fc522bc8927a5ffa8d69f8ef",
+      "verdict": "SUSPICIOUS",
+      "threat_type": "unknown",
+      "flags": [
+        "static_imports_socket",
+        "static_imports_subprocess"
+      ],
+      "score": 50,
+      "recorded_at": "2026-06-11T10:05:44.729326"
+    },
+    "nonce": 51
+  },
+  {
+    "block_index": 5,
+    "timestamp": "2026-06-11T10:05:44.730721",
+    "block_hash": "008b25847b62061b5cb4a9c79994d5545ae97f32009c73a545b0e4721dbf41b7",
+    "prev_hash": "0050557b3bf5251bb704f9349db57b828693b9804619a8fc2c2d5eb073afefda",
+    "data": {
+      "type": "threat",
+      "source": "local",
+      "file_path": "/Users/abin/A3/sandbox/samples/test_risky.py",
+      "file_hash": "2e0809bf68e5878d296af4b607d60b7d730f9d3a7b3ef201684dd7f832fe611d",
+      "verdict": "MALICIOUS",
+      "threat_type": "unknown",
+      "flags": [
+        "static_imports_subprocess",
+        "static_system_command",
+        "static_base64_import",
+        "static_base64_decode"
+      ],
+      "score": 110,
+      "recorded_at": "2026-06-11T10:05:44.730608"
+    },
+    "nonce": 151
+  }
+]
