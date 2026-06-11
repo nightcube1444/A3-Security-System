@@ -20,6 +20,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from sandbox import run_in_sandbox, init_sandbox_db, pull_sandbox_image
 from ai_analyst import analyse_report, init_ai_db, ask_ollama
 from swarm import start_swarm, publish_threat, check_swarm_intel
+from blockchain import init_chain_db, record_threat, record_system_event, validate_chain
+from scheduler import start_scheduler
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR    = Path(__file__).parent.parent
@@ -92,20 +94,7 @@ def run_full_pipeline(file_path, file_event_id):
             quarantine_file(file_path, report, assessment)
         elif action == "DELETE":
             log(f"DELETE recommended for {file_path.name} — logged only", "WARN")
-        # Record on blockchain
-        if report["verdict"] in ("MALICIOUS", "SUSPICIOUS"):
-            try:
-                record_threat(
-                    str(file_path),
-                    report.get("hash", ""),
-                    report["verdict"],
-                    ttype.lower(),
-                    report.get("flags", []),
-                    report.get("score", 0)
-                )
-                log(f"Threat recorded on blockchain ✓", "OK")
-            except Exception as e:
-                log(f"Blockchain record failed: {e}", "WARN")
+
     log(f"Pipeline complete for: {file_path.name}", "OK")
 
 def quarantine_file(file_path, report, assessment):
@@ -301,8 +290,7 @@ def main():
 
     init_sandbox_db()
     init_ai_db()
-    init_chain_db()
-    
+
     # Check Ollama
     log("Checking Ollama (Layer 4)...")
     test = ask_ollama("Reply with only the word: ready")
@@ -339,6 +327,10 @@ def main():
     ]
     for t in threads:
         t.start()
+
+    # Start autonomous scheduler
+    start_scheduler()
+    log("Autonomous scheduler active ✓", "OK")
 
     log("All layers active. Watching your system...", "OK")
     log("Press Ctrl+C to stop\n", "INFO")
