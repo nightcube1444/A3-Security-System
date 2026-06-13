@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-06-12T16:55:25.065597",
+  "total_tests": 6,
+  "passed": 6,
+  "failed": 0,
+  "accuracy": 100.0,
+  "results": [
+    {
+      "sample": "clean_hello.py",
+      "path": "/Users/abin/A3/sandbox/experiment_samples/clean_hello.py",
+      "hash": "04afc04b30d16c9d2d591d98148280c459d3d6b8d6b37ece52496c8f9eb8e84b",
+      "expected": "CLEAN",
+      "predicted": "CLEAN",
+      "score": 0,
+      "flags": [],
+      "passed": true
+    },
+    {
+      "sample": "suspicious_socket.py",
+      "path": "/Users/abin/A3/sandbox/experiment_samples/suspicious_socket.py",
+      "hash": "e58b140c986b3afd692ac089b5dc66d80639c5cf7de1722ce584ea242ed0a15f",
+      "expected": "SUSPICIOUS",
+      "predicted": "SUSPICIOUS",
+      "score": 30,
+      "flags": [
+        "static_imports_socket"
+      ],
+      "passed": true
+    },
+    {
+      "sample": "suspicious_subprocess.py",
+      "path": "/Users/abin/A3/sandbox/experiment_samples/suspicious_subprocess.py",
+      "hash": "7e5688eafa1adc0520852a6afe6908689ab5d079dc4cae7723c9fd72f905358a",
+      "expected": "SUSPICIOUS",
+      "predicted": "SUSPICIOUS",
+      "score": 30,
+      "flags": [
+        "static_imports_subprocess"
+      ],
+      "passed": true
+    },
+    {
+      "sample": "malicious_pattern_base64.py",
+      "path": "/Users/abin/A3/sandbox/experiment_samples/malicious_pattern_base64.py",
+      "hash": "2acdb2a9cc085f5c9f7d7962555f393e15901074093567213c6da66144021e54",
+      "expected": "MALICIOUS",
+      "predicted": "MALICIOUS",
+      "score": 100,
+      "flags": [
+        "static_imports_subprocess",
+        "static_base64_usage",
+        "static_base64_decode"
+      ],
+      "passed": true
+    },
+    {
+      "sample": "malicious_pattern_ransomware.py",
+      "path": "/Users/abin/A3/sandbox/experiment_samples/malicious_pattern_ransomware.py",
+      "hash": "09bff0292ba28fbb074c6874a2b8e5a106cf0fb73053706cf82f2d9c203ed2c0",
+      "expected": "MALICIOUS",
+      "predicted": "MALICIOUS",
+      "score": 140,
+      "flags": [
+        "static_ransomware_keyword_encrypt",
+        "static_ransomware_keyword_ransom",
+        "static_ransomware_keyword_payment"
+      ],
+      "passed": true
+    },
+    {
+      "sample": "malicious_pattern_keylogger.py",
+      "path": "/Users/abin/A3/sandbox/experiment_samples/malicious_pattern_keylogger.py",
+      "hash": "3ee04a2d57d018e3abdb77eb83aaad9b54e28f7e17c961353083d6c6c7669350",
+      "expected": "MALICIOUS",
+      "predicted": "MALICIOUS",
+      "score": 140,
+      "flags": [
+        "static_keylogger_keyword_keyboard",
+        "static_keylogger_keyword_keystroke",
+        "static_keylogger_keyword"
+      ],
+      "passed": true
+    }
+  ],
+  "recommendations": [
+    "All tests passed. Add more realistic safe samples next."
+  ]
+}

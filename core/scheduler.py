@@ -241,6 +241,27 @@ def print_scheduler_status(tasks):
         status = "✓" if task.error_count == 0 else f"⚠ {task.error_count} errors"
         print(f"  {task.name:<25} runs:{task.run_count:<4} next:{next_run:<12} {status}")
     print(f"{'═'*55}\n")
+    
+def task_threat_feeds():
+    """Pull latest threat intelligence from all feeds."""
+    try:
+        from threat_feeds import update_all, init_feeds_db
+        init_feeds_db()
+        update_all()
+    except Exception as e:
+        log(f"Threat feeds error: {e}", "WARN")
+
+def task_dns_monitor():
+    try:
+        from dns_monitor import init_dns_db, monitor_dns_log, score_domain, save_query
+        init_dns_db()
+        domains = monitor_dns_log()
+        for domain, meta in domains.items():
+            score, flags = score_domain(domain)
+            if score > 0:
+                save_query(domain, score, flags)
+    except Exception as e:
+        log(f"DNS monitor error: {e}", "WARN")
 
 # ── Main scheduler loop ───────────────────────────────────────────────────────
 
@@ -257,6 +278,8 @@ def run_scheduler():
         Task("semgrep_scan",      task_semgrep_scan,      86400,        False),  # 24 hours
         Task("weekly_report",     task_weekly_report,     604800,       False),  # 7 days
         Task("cleanup",           task_cleanup,           86400,        False),  # 24 hours
+        Task("threat_feeds",     task_threat_feeds,      3600,         True),   # 1 hour
+        Task("dns_scan", task_dns_monitor, 300, True),  # every 5 min
     ]
 
     log(f"Scheduled {len(tasks)} autonomous task(s)", "OK")

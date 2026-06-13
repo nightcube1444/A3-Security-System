@@ -136,7 +136,27 @@ def run_in_sandbox(file_path):
     log(f"Sandboxing: {file_path.name}")
     log(f"SHA256: {file_hash}")
     log(f"Container: {container_id}")
-
+    
+    # Check threat intelligence feeds before sandboxing
+    try:
+        from threat_feeds import check_hash, init_feeds_db
+        init_feeds_db()
+        feed_hit = check_hash(file_hash)
+        if feed_hit:
+            log(f"THREAT FEED HIT — known {feed_hit['malware']} ({feed_hit['source']})", "ALERT")
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "file": str(file_path), "hash": file_hash,
+                "container": "feed_hit", "duration": 0,
+                "exit_code": 0, "stdout": "", "stderr": "",
+                "score": 200,
+                "flags": [f"threat_feed:{feed_hit['source']}", f"malware:{feed_hit['malware']}"],
+                "verdict": "MALICIOUS",
+                "ml_verdict": "MALICIOUS", "ml_confidence": 1.0,
+            }
+    except Exception as e:
+        log(f"Feed check skipped: {e}", "INFO")
+        
     # Copy file to sandbox samples dir (skip if already there)
     sample_path = SANDBOX_DIR / "samples" / file_path.name
     if file_path.resolve() != sample_path.resolve():
