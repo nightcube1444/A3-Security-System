@@ -40,6 +40,9 @@ Layer 4 Llama3 gives deep analysis (ai_analyst.py)
 Verdict → ALLOW / MONITOR / QUARANTINE
         ↓
 Live dashboard shows everything (React + FastAPI)
+
+![A3 Dashboard](assets/dashboard.png)
+
 ```
 
 ---
