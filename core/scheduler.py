@@ -263,6 +263,18 @@ def task_dns_monitor():
     except Exception as e:
         log(f"DNS monitor error: {e}", "WARN")
 
+def task_baseline():
+    try:
+        from baseline_engine import init_baseline_db, observe_processes
+        from baseline_engine import save_observations, build_profiles, is_learning_phase
+        init_baseline_db()
+        obs = observe_processes()
+        save_observations(obs)
+        if not is_learning_phase():
+            build_profiles()
+    except Exception as e:
+        log(f"Baseline error: {e}", "WARN")
+
 # ── Main scheduler loop ───────────────────────────────────────────────────────
 
 def run_scheduler():
@@ -280,6 +292,7 @@ def run_scheduler():
         Task("cleanup",           task_cleanup,           86400,        False),  # 24 hours
         Task("threat_feeds",     task_threat_feeds,      3600,         True),   # 1 hour
         Task("dns_scan", task_dns_monitor, 300, True),  # every 5 min
+        Task("baseline", task_baseline, 30, True),  # every 30 seconds
     ]
 
     log(f"Scheduled {len(tasks)} autonomous task(s)", "OK")
