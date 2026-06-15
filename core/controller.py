@@ -20,6 +20,8 @@ from swarm import start_swarm, publish_threat, check_swarm_intel
 from blockchain import init_chain_db, record_threat, validate_chain
 from scheduler import start_scheduler
 from telegram_bot import alert_malicious_file, alert_startup, alert_high_risk_process
+from incident_engine import start_incident_engine
+from baseline_engine import start_baseline_engine
 
 BASE_DIR    = Path(__file__).parent.parent
 DATA_DIR    = BASE_DIR / "data"
@@ -288,6 +290,12 @@ def main():
 
     start_scheduler()
     log("Autonomous scheduler active ✓", "OK")
+    
+    start_incident_engine()
+    log("Incident engine active ✓", "OK")
+
+    start_baseline_engine()
+    log("Baseline engine active ✓", "OK")
 
     try:
         alert_startup()
