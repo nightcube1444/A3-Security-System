@@ -249,3 +249,54 @@ def trend():
         rows = []
     conn.close()
     return rows
+
+@app.get("/api/incidents")
+def incidents(limit: int = 20):
+    conn = db()
+    c = conn.cursor()
+    try:
+        c.execute("""
+            SELECT incident_id, title, severity, status,
+                   event_count, first_event, last_event,
+                   mitre_tactic, recommended
+            FROM incidents
+            ORDER BY
+                CASE severity
+                    WHEN 'CRITICAL' THEN 4
+                    WHEN 'HIGH' THEN 3
+                    WHEN 'MEDIUM' THEN 2
+                    ELSE 1 END DESC,
+                last_event DESC
+            LIMIT ?
+        """, (limit,))
+        return [dict(r) for r in c.fetchall()]
+    except Exception:
+        return []
+    finally:
+        conn.close()
+
+@app.get("/api/baseline")
+def baseline():
+    conn = db()
+    c = conn.cursor()
+    try:
+        c.execute("""
+            SELECT process, anomaly_score, flags, timestamp
+            FROM baseline_anomalies
+            ORDER BY anomaly_score DESC, timestamp DESC
+            LIMIT 20
+        """)
+        rows = [dict(r) for r in c.fetchall()]
+        for r in rows:
+            r["flags"] = json.loads(r["flags"]) if r["flags"] else []
+
+        c.execute("SELECT COUNT(*) FROM baseline_observations")
+        obs = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM baseline_profiles")
+        profiles = c.fetchone()[0]
+
+        return {"anomalies": rows, "observations": obs, "profiles": profiles}
+    except Exception:
+        return {"anomalies": [], "observations": 0, "profiles": 0}
+    finally:
+        conn.close()
