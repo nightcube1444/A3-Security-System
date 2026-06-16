@@ -1,0 +1,36 @@
+[
+  {
+    "id": "LESSON-91105E6D",
+    "timestamp": "2026-06-16T20:48:06.133438",
+    "title": "Socket detection threshold was too low",
+    "category": "experiment_failure",
+    "problem": "suspicious_socket.py was expected to be SUSPICIOUS but A3 marked it CLEAN.",
+    "cause": "The socket rule scored only 25 points, below the suspicious threshold of 30.",
+    "fix": "Increase socket detection score from 25 to 30.",
+    "result": "FIXED",
+    "confidence": 0.9,
+    "tags": [
+      "experiment",
+      "socket",
+      "false_negative",
+      "detection_rule"
+    ]
+  },
+  {
+    "id": "LESSON-3A620D3F",
+    "timestamp": "2026-06-16T21:10:21.451066",
+    "title": "Failed detection: suspicious_persistence.py",
+    "category": "experiment_failure",
+    "problem": "suspicious_persistence.py was expected to be SUSPICIOUS but A3 predicted MALICIOUS.",
+    "cause": "Detection rule score, threshold, or feature coverage may be insufficient.",
+    "fix": "Reduced persistence keyword scores from 30-40 to 15 each so persistence alone stays SUSPICIOUS instead of MALICIOUS.",
+    "result": "FIXED",
+    "confidence": 0.7,
+    "tags": [
+      "experiment",
+      "failed_test",
+      "suspicious",
+      "malicious"
+    ]
+  }
+]

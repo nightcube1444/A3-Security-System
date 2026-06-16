@@ -3,16 +3,21 @@ A3 Security System — Experiment Lab
 
 Safe detection testing lab.
 Generates harmless test samples, runs A3-style static checks,
-compares expected vs predicted verdict, and saves a report.
+compares expected vs predicted verdict, saves a report,
+and stores failed experiments in Learning Memory.
 
 This does NOT create real malware.
 """
 
-import os
 import json
 import hashlib
 from pathlib import Path
 from datetime import datetime
+
+try:
+    from core.learning_memory import LearningMemory
+except Exception:
+    from learning_memory import LearningMemory
 
 
 BASE_DIR = Path(__file__).parent.parent
@@ -89,15 +94,88 @@ keywords = ["keyboard", "keystroke", "listener", "keylogger"]
 for word in keywords:
     print("Simulation keyword:", word)
 """
-    }
+    },
+        {
+        "name": "suspicious_dns_beacon.py",
+        "expected": "SUSPICIOUS",
+        "content": """
+# Simulated DNS beacon-like pattern
+# This does NOT make any network connection
+
+domains = [
+    "a1b2c3d4-test.example",
+    "x9y8z7-check.example",
+    "beacon-status.example"
+]
+
+for domain in domains:
+    print("Simulated DNS lookup:", domain)
+"""
+    },
+    {
+        "name": "suspicious_persistence.py",
+        "expected": "SUSPICIOUS",
+        "content": """
+# Simulated persistence-related keywords
+# This does NOT modify startup items
+
+keywords = [
+    "launchagent",
+    "launchdaemon",
+    "login item",
+    "startup",
+    "persistence"
+]
+
+for word in keywords:
+    print("Persistence simulation:", word)
+"""
+    },
+    {
+        "name": "malicious_file_burst.py",
+        "expected": "MALICIOUS",
+        "content": """
+# Simulated destructive file activity pattern
+# This does NOT delete or modify files
+
+keywords = [
+    "delete many files",
+    "overwrite documents",
+    "recursive file modification",
+    "mass file rename",
+    "file destruction"
+]
+
+for word in keywords:
+    print("File burst simulation:", word)
+"""
+    },
+    {
+        "name": "malicious_encoded_network.py",
+        "expected": "MALICIOUS",
+        "content": """
+# Simulated encoded network payload pattern
+# This does NOT connect to the internet
+
+import base64
+import socket
+
+encoded = "Y29tbWFuZF9hbmRfY29udHJvbA=="
+decoded = base64.b64decode(encoded)
+
+print("Encoded network simulation:", decoded)
+"""
+    },
 ]
 
 
 def sha256_file(path):
     h = hashlib.sha256()
+
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
+
     return h.hexdigest()
 
 
@@ -146,6 +224,19 @@ def static_analyze_file(path):
         ("keyboard", 35, "static_keylogger_keyword_keyboard"),
         ("keystroke", 45, "static_keylogger_keyword_keystroke"),
         ("keylogger", 60, "static_keylogger_keyword"),
+        ("beacon", 35, "static_dns_beacon_keyword"),
+        ("dns lookup", 35, "static_dns_lookup_pattern"),
+        ("launchagent", 15, "static_persistence_launchagent"),
+        ("launchdaemon", 15, "static_persistence_launchdaemon"),
+        ("login item", 15, "static_persistence_login_item"),
+        ("startup", 15, "static_persistence_startup"),
+        ("persistence", 15, "static_persistence_keyword"),
+        ("delete many files", 60, "static_mass_delete_keyword"),
+        ("overwrite documents", 60, "static_overwrite_documents"),
+        ("recursive file modification", 60, "static_recursive_file_modification"),
+        ("mass file rename", 50, "static_mass_file_rename"),
+        ("file destruction", 60, "static_file_destruction_keyword"),
+        ("command_and_control", 60, "static_c2_keyword"),
     ]
 
     for pattern, points, flag in rules:
@@ -165,6 +256,61 @@ def static_analyze_file(path):
         "flags": flags,
         "verdict": verdict
     }
+
+
+def generate_recommendations(results):
+    recommendations = []
+
+    for r in results:
+        if not r["passed"]:
+            recommendations.append(
+                f"Improve rules for {r['sample']}: "
+                f"expected {r['expected']} but got {r['predicted']}."
+            )
+
+    if not recommendations:
+        recommendations.append(
+            "All tests passed. Add more realistic safe samples next."
+        )
+
+    return recommendations
+
+
+def save_failed_tests_to_memory(results):
+    memory = LearningMemory()
+    saved = []
+
+    for r in results:
+        if not r.get("passed"):
+            lesson = memory.add_lesson(
+                title=f"Failed detection: {r.get('sample')}",
+                category="experiment_failure",
+                problem=(
+                    f"{r.get('sample')} was expected to be "
+                    f"{r.get('expected')} but A3 predicted "
+                    f"{r.get('predicted')}."
+                ),
+                cause=(
+                    "Detection rule score, threshold, or feature coverage "
+                    "may be insufficient."
+                ),
+                fix=(
+                    "Review flags and scoring rules for this sample. "
+                    "Add or adjust detection rules, then rerun experiment lab."
+                ),
+                result="PENDING",
+                confidence=0.7,
+                tags=[
+                    "experiment",
+                    "failed_test",
+                    str(r.get("expected")).lower(),
+                    str(r.get("predicted")).lower(),
+                ],
+            )
+
+            saved.append(lesson)
+
+    return saved
 
 
 def run_experiments():
@@ -212,6 +358,8 @@ def run_experiments():
     total = len(results)
     accuracy = round((passed / total) * 100, 2) if total else 0
 
+    memory_lessons = save_failed_tests_to_memory(results)
+
     report = {
         "timestamp": datetime.now().isoformat(),
         "total_tests": total,
@@ -219,7 +367,8 @@ def run_experiments():
         "failed": failed,
         "accuracy": accuracy,
         "results": results,
-        "recommendations": generate_recommendations(results)
+        "recommendations": generate_recommendations(results),
+        "memory_lessons_saved": len(memory_lessons)
     }
 
     report_path = REPORT_DIR / f"experiment_report_{int(datetime.now().timestamp())}.json"
@@ -229,28 +378,14 @@ def run_experiments():
 
     print("-" * 50)
     print("Experiment Lab Complete")
-    print(f"Total Tests : {total}")
-    print(f"Passed      : {passed}")
-    print(f"Failed      : {failed}")
-    print(f"Accuracy    : {accuracy}%")
-    print(f"Report saved: {report_path}")
+    print(f"Total Tests          : {total}")
+    print(f"Passed               : {passed}")
+    print(f"Failed               : {failed}")
+    print(f"Accuracy             : {accuracy}%")
+    print(f"Memory lessons saved : {len(memory_lessons)}")
+    print(f"Report saved         : {report_path}")
 
     return report
-
-
-def generate_recommendations(results):
-    recommendations = []
-
-    for r in results:
-        if not r["passed"]:
-            recommendations.append(
-                f"Improve rules for {r['sample']}: expected {r['expected']} but got {r['predicted']}."
-            )
-
-    if not recommendations:
-        recommendations.append("All tests passed. Add more realistic safe samples next.")
-
-    return recommendations
 
 
 if __name__ == "__main__":
