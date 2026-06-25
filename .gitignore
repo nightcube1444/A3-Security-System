@@ -12,3 +12,11 @@ logs/
 *.egg-info/
 node_modules/
 dashboard/dist/
+.DS_Store
+*.log
+*.pdf
+nikto_*.txt
+data/*.joblib
+reports/
+sandbox/experiment_samples/
+data/experiment_reports/
